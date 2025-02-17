@@ -4,11 +4,12 @@ import { Droppable } from "./components/common/Droppable"
 import { Draggable } from "./components/common/Draggable"
 import { useState } from "react"
 import { genUUID } from "./utils"
+import { SchemaItem } from "./types"
 
 function App() {
-  const [jsonSchema, setJsonSchema] = useState<
-    { key: string; color: string }[]
-  >([{ key: "-", color: "bg-red-500" }]) // JSON Schema
+  const [jsonSchema, setJsonSchema] = useState<SchemaItem[]>([
+    { key: "-", color: "bg-red-500" },
+  ]) // JSON Schema
 
   const handleDragEnd = (event: DragEndEvent) => {
     console.log(event)
