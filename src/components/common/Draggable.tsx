@@ -1,27 +1,39 @@
-import React from "react"
-import { UniqueIdentifier, useDraggable } from "@dnd-kit/core"
+import React, { useRef, useEffect, useState } from "react"
+import { draggable } from "@atlaskit/pragmatic-drag-and-drop/element/adapter"
+import invariant from "tiny-invariant"
+import clsx from "clsx"
 
 interface DraggableProps {
-  id: UniqueIdentifier
+  id: string
   children: React.ReactNode
   data?: any
 }
 
 export const Draggable = (props: DraggableProps) => {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: props.id,
-    data: props.data,
-  })
+  const ref = useRef(null)
+  const [dragging, setDragging] = useState<boolean>(false)
 
-  const style = transform
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      }
-    : undefined
+  useEffect(() => {
+    const el = ref.current
+    invariant(el)
+
+    return draggable({
+      element: el,
+      getInitialData: () => props.data,
+      onDragStart: () => setDragging(true),
+      onDrop: () => setDragging(false),
+    })
+  }, [props.data])
 
   return (
-    <button ref={setNodeRef} style={style} {...listeners} {...attributes}>
+    <div
+      ref={ref}
+      className={clsx(
+        "w-fit h-fit box-border border-1 ",
+        dragging ? "border-1 border-black-500" : "border-transparent"
+      )}
+    >
       {props.children}
-    </button>
+    </div>
   )
 }
