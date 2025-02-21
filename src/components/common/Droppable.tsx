@@ -37,16 +37,16 @@ export const Droppable = (props: DroppableProps) => {
         })
       },
       onDragEnter: ({ source, self }) => {
-        console.log("source", source)
+        console.log("onDragEnter source", source)
 
-        if (source.data.key !== self.data.key) {
+        if (source.data.id !== self.data.id) {
           setClosestEdge(extractClosestEdge(self.data))
         }
 
         setState("validMove")
       },
       onDrag: ({ source, self }) => {
-        if (source.data.key !== self.data.key) {
+        if (source.data.id !== self.data.id) {
           setClosestEdge(extractClosestEdge(self.data))
         }
       },

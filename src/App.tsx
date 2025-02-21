@@ -1,9 +1,7 @@
-import { Box } from "./components/Box"
-import { Droppable } from "./components/common/Droppable"
 import { Draggable } from "./components/common/Draggable"
 import { useCallback, useEffect, useState } from "react"
-import { genUUID } from "./utils"
-import { SchemaItem } from "./types"
+import { genUUID, mReorderItem, mInsertItem } from "./utils"
+import { JSONSchema, SchemaItem } from "./types"
 import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter"
 import {
   type Edge,
@@ -11,12 +9,24 @@ import {
 } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge"
 import { getReorderDestinationIndex } from "@atlaskit/pragmatic-drag-and-drop-hitbox/util/get-reorder-destination-index"
 import { reorder } from "@atlaskit/pragmatic-drag-and-drop/reorder"
+import { useComponents } from "./hooks/useComponents"
 
 function App() {
-  const [jsonSchema, setJsonSchema] = useState<SchemaItem[]>([
-    { key: "-", color: "bg-red-500" },
+  const [jsonSchema, setJsonSchema] = useState<JSONSchema[]>([
+    {
+      id: "root",
+      type: "Column",
+      children: [
+        {
+          id: "box1",
+          type: "Box",
+          color: "bg-red-500",
+        },
+      ],
+    },
   ]) // JSON Schema
   const [activeItem, setActiveItem] = useState<SchemaItem | null>(null)
+  const { components } = useComponents()
 
   const reorderItem = useCallback(
     ({
@@ -52,7 +62,7 @@ function App() {
   useEffect(() => {
     return monitorForElements({
       onDrag: ({ source }) => {
-        console.log("monitorForElements onDrag", { source })
+        // console.log("monitorForElements onDrag", { source })
         setActiveItem(source.data as any)
       },
       onDrop({ source, location }) {
@@ -69,31 +79,26 @@ function App() {
 
         // 从物料区拖动到画布区，新增
         if (sourceData.isSource) {
-          newItem.key = genUUID()
+          newItem.id = genUUID()
+          newItem.text = Math.floor(Math.random() * 100) // box properties
           delete newItem.isSource
-          setJsonSchema((prev) => [...prev, newItem as any])
+          setJsonSchema((prev) => {
+            const prevSchema = JSON.parse(JSON.stringify(prev))
+
+            mInsertItem(prevSchema, destinationData as any, newItem as any)
+
+            return prevSchema
+          })
         }
 
         // 从画布区拖动到画布区，修改位置
         if (!destinationData.isSource) {
-          const indexOfSource = jsonSchema.findIndex(
-            (item) => item.key === sourceData.key
-          )
+          setJsonSchema((prev) => {
+            const prevSchema = JSON.parse(JSON.stringify(prev))
 
-          const indexOfTarget = jsonSchema.findIndex(
-            (item) => item.key === destinationData.key
-          )
-          if (indexOfTarget < 0) {
-            console.warn("not found target from jsonSchema")
-            return
-          }
+            mReorderItem(prevSchema, destinationData as any, newItem as any)
 
-          const closestEdgeOfTarget = extractClosestEdge(destinationData)
-
-          reorderItem({
-            startIndex: indexOfSource,
-            indexOfTarget,
-            closestEdgeOfTarget,
+            return prevSchema
           })
         }
       },
@@ -110,42 +115,38 @@ function App() {
       <div className="flex flex-row h-[calc(100vh-50px)]">
         {/* 物料区 */}
         <div className="flex flex-col h-full bg-gray-100 w-[200px] gap-[10px]">
-          <Draggable
-            key="A"
-            id="A"
-            data={{ key: "A", color: "bg-red-500", isSource: true }}
-          >
-            <Box className="bg-red-500" />
-          </Draggable>
-
-          <Draggable
-            key="draggable"
-            id="draggable"
-            data={{ key: "draggable", color: "bg-blue-500", isSource: true }}
-          >
-            <Box className="bg-blue-500" />
-          </Draggable>
+          {components &&
+            components.map((component) => {
+              return (
+                <Draggable
+                  key={component.id}
+                  id={component.id}
+                  data={{
+                    color: "bg-red-500",
+                    isSource: true,
+                    ...component,
+                  }}
+                >
+                  <div className="size-[100px] bg-blue-500 flex items-center justify-center text-white font-bold uppercase">
+                    {component.type}
+                  </div>
+                </Draggable>
+              )
+            })}
         </div>
 
         {/* 画布区 */}
         <div className="flex-1 h-full bg-green-100">
-          <Droppable
-            className="w-full h-full"
-            key="droppable-root"
-            id="droppable"
-            data={{ key: "droppable-root" }}
-          >
-            {/* TODO: 容器组件 */}
-            <div className="flex flex-col gap-[10px] w-full h-full">
-              {jsonSchema.map((item) => (
-                <Droppable key={item.key} id={item.key} data={item}>
-                  <Draggable key={item.key} id={item.key} data={item}>
-                    <Box key={item.key} className={item.color} />
-                  </Draggable>
-                </Droppable>
-              ))}
-            </div>
-          </Droppable>
+          {jsonSchema &&
+            jsonSchema.map((item) => {
+              const Component = components.find(
+                (c) => c.type === item.type
+              )?.component
+
+              if (!Component) return null
+
+              return <Component key={item.id} data={item} />
+            })}
         </div>
 
         {/* 属性区 */}

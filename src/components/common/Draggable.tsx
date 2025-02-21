@@ -7,6 +7,7 @@ interface DraggableProps {
   id: string
   children: React.ReactNode
   data?: any
+  className?: string
 }
 
 export const Draggable = (props: DraggableProps) => {
@@ -30,6 +31,7 @@ export const Draggable = (props: DraggableProps) => {
       ref={ref}
       className={clsx(
         "w-fit h-fit box-border border-1 ",
+        props.className,
         dragging ? "border-1 border-black-500" : "border-transparent"
       )}
     >
