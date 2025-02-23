@@ -16,8 +16,11 @@ TODO:
 
 https://juejin.cn/post/7274140856034017332?searchId=20250217161815011AA6390FC8497B3F00
 
-- 容器功能（extractInstruction， attachInstruction）
+
+- 加载url组件资源
 - 拖拽到 iframe 中
+- 预览组件&编辑组件
+- Row 类型组件，子组件拖拽排序
 
 
 

@@ -13,7 +13,7 @@ export const Edit = ({ children, data, className }: EditProps) => {
 
   return (
     <Draggable id={id} data={data} className={className}>
-      <Droppable id={id} data={data} className={className}>
+      <Droppable id={id} data={data} className={className} mode="standard">
         {children}
       </Droppable>
     </Draggable>

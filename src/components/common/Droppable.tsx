@@ -7,13 +7,24 @@ import {
   Edge,
   extractClosestEdge,
 } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge"
-import { DropIndicator } from "@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/box"
+import { DropIndicator } from "@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/tree-item"
+import {
+  attachInstruction,
+  extractInstruction,
+} from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item"
+import { indentPerLevel } from "./constants"
+import {
+  type Instruction,
+  type ItemMode,
+} from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item"
+import { DropIndicator as BoxDropIndicator } from "@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/box"
 
 interface DroppableProps {
   id: string
   children: React.ReactNode
   data?: any
   className?: string
+  mode: ItemMode
 }
 
 type HoveredState = "idle" | "validMove" | "invalidMove"
@@ -22,6 +33,7 @@ export const Droppable = (props: DroppableProps) => {
   const ref = useRef(null)
   const [state, setState] = useState<HoveredState>("idle")
   const [closestEdge, setClosestEdge] = useState<Edge | null>(null)
+  const [instruction, setInstruction] = useState<Instruction | null>(null)
 
   useEffect(() => {
     const el = ref.current
@@ -30,36 +42,55 @@ export const Droppable = (props: DroppableProps) => {
     return dropTargetForElements({
       element: el,
       getData: ({ input, element }) => {
-        return attachClosestEdge(props.data, {
+        return attachInstruction(props.data, {
           input,
           element,
-          allowedEdges: ["top", "bottom"],
+          indentPerLevel,
+          currentLevel: 0,
+          mode: props.mode,
+          block: props.data.isGroup ? [] : ["make-child"],
         })
       },
       onDragEnter: ({ source, self }) => {
         console.log("onDragEnter source", source)
 
         if (source.data.id !== self.data.id) {
-          setClosestEdge(extractClosestEdge(self.data))
+          const instruction = extractInstruction(self.data)
+          // console.log("instruction", instruction)
+          setInstruction(instruction)
+          // if (self.data.isGroup) {
+          //   const instruction = extractInstruction(self.data)
+          //   // console.log("instruction", instruction)
+          //   setInstruction(instruction)
+          // } else {
+          //   setClosestEdge(extractClosestEdge(self.data))
+          // }
         }
 
         setState("validMove")
       },
       onDrag: ({ source, self }) => {
         if (source.data.id !== self.data.id) {
-          setClosestEdge(extractClosestEdge(self.data))
+          // if (self.data.isGroup) {
+            const instruction = extractInstruction(self.data)
+            setInstruction(instruction)
+          // } else {
+          //   setClosestEdge(extractClosestEdge(self.data))
+          // }
         }
       },
       onDragLeave: () => {
         setState("idle")
+        setInstruction(null)
         setClosestEdge(null)
       },
       onDrop: () => {
         setState("idle")
+        setInstruction(null)
         setClosestEdge(null)
       },
     })
-  }, [props.data])
+  }, [props.data, props.mode])
 
   const draggedOverCN = state === "validMove" ? "bg-green-300" : undefined
 
@@ -69,7 +100,8 @@ export const Droppable = (props: DroppableProps) => {
       className={clsx("w-fit h-fit relative", draggedOverCN, props.className)}
     >
       {props.children}
-      {closestEdge && <DropIndicator edge={closestEdge} />}
+      {instruction && <DropIndicator instruction={instruction} />}
+      {closestEdge && <BoxDropIndicator edge={closestEdge} />}
     </div>
   )
 }

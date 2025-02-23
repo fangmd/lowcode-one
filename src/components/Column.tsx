@@ -13,7 +13,7 @@ export const Column = ({ className, ...props }: ColumnProps) => {
   return (
     <Edit data={props.data} className="w-full">
       <div
-        className={clsx("flex flex-col min-h-2.5 border", className)}
+        className={clsx("flex flex-col min-h-3 border", className)}
         {...props}
       >
         {children &&

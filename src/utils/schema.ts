@@ -3,7 +3,12 @@ import {
   type Edge,
   extractClosestEdge,
 } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge"
-import { reorderWithEdge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/util/reorder-with-edge"
+import {
+  attachInstruction,
+  extractInstruction,
+} from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item"
+import { treeAction, treeInsert, TreeItem } from "./tree"
+import { list } from "./list"
 
 const loopFind = (schema: JSONSchema[], id: string) => {
   for (let i = 0; i < schema.length; i++) {
@@ -50,14 +55,36 @@ export const mInsertItem = (
   const targetItem = loopFind(schema, target.id)
   if (!targetItem) return schema
 
-  const closestEdgeOfTarget = extractClosestEdge(target as any)
-  console.log("closestEdgeOfTarget", closestEdgeOfTarget)
+  let ret
+  // if (target.isGroup) {
+  const instruction = extractInstruction(target as any)
+  console.log("instruction", instruction)
   console.log("insertItem", source)
 
   const { component, ...rest } = source
 
-  targetItem.children.push(rest)
-  return schema
+  if (instruction?.type === "instruction-blocked") {
+    return schema
+  }
+
+  ret = treeInsert(schema as TreeItem[], rest as TreeItem, {
+    type: "instruction",
+    instruction: instruction as any,
+    itemId: source.id,
+    targetId: target.id,
+  })
+  // } else {
+  //   const edge = extractClosestEdge(target as any)
+  //   console.log("edge", edge)
+
+  //   if (edge === "top") {
+  //     ret = list.insertBefore(schema, target.id, source)
+  //   } else if (edge === "bottom") {
+  //     ret = list.insertAfter(schema, target.id, source)
+  //   }
+  // }
+
+  return ret
 }
 
 export const mReorderItem = (
@@ -71,44 +98,15 @@ export const mReorderItem = (
   if (!targetItem) return schema
   if (!sourceParentItem) return []
 
-  const { component, ...rest } = source
+  const instruction = extractInstruction(target as any)
+  console.log("instruction", instruction)
+  console.log("insertItem", source)
+  const ret = treeAction(schema as TreeItem[], {
+    type: "instruction",
+    instruction: instruction as any,
+    itemId: source.id,
+    targetId: target.id,
+  })
 
-  const closestEdgeOfTarget = extractClosestEdge(target as any)
-
-  // 同级别
-  if (targetParentItem?.id === sourceParentItem.id) {
-    targetParentItem.children = reorderWithEdge({
-      axis: "vertical",
-      list: targetParentItem.children!,
-      startIndex: targetParentItem.children!.findIndex(
-        (item) => item.id === source.id
-      ),
-      indexOfTarget: targetParentItem.children!.findIndex(
-        (item) => item.id === target.id
-      ),
-      closestEdgeOfTarget: closestEdgeOfTarget,
-    })
-  }
-
-  // 不同级别
-  if (targetParentItem?.id !== sourceParentItem.id) {
-    // remove item
-    sourceParentItem.children = sourceParentItem.children?.filter(
-      (item) => item.id !== source.id
-    )
-
-    // TODO: 插入到 target 的 children 中
-
-    if (!targetItem.children) {
-      targetItem.children = []
-    }
-
-    if (closestEdgeOfTarget === "bottom") {
-      targetItem.children.push(rest)
-    } else if (closestEdgeOfTarget === "top") {
-      targetItem.children.unshift(rest)
-    }
-  }
-
-  return schema
+  return ret
 }

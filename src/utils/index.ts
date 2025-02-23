@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid"
 export * from "./schema"
+export * from "./tree"
 
 /**
  * Generate a UUID v4 string

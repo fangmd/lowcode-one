@@ -16,10 +16,12 @@ function App() {
     {
       id: "root",
       type: "Column",
+      isGroup: true,
       children: [
         {
           id: "box1",
           type: "Box",
+          isGroup: false,
           color: "bg-red-500",
         },
       ],
@@ -83,20 +85,29 @@ function App() {
           newItem.text = Math.floor(Math.random() * 100) // box properties
           delete newItem.isSource
           setJsonSchema((prev) => {
-            const prevSchema = JSON.parse(JSON.stringify(prev))
+            let prevSchema = JSON.parse(JSON.stringify(prev))
 
-            mInsertItem(prevSchema, destinationData as any, newItem as any)
+            prevSchema = mInsertItem(
+              prevSchema,
+              destinationData as any,
+              newItem as any
+            )
 
             return prevSchema
           })
+          return
         }
 
         // 从画布区拖动到画布区，修改位置
         if (!destinationData.isSource) {
           setJsonSchema((prev) => {
-            const prevSchema = JSON.parse(JSON.stringify(prev))
+            let prevSchema = JSON.parse(JSON.stringify(prev))
 
-            mReorderItem(prevSchema, destinationData as any, newItem as any)
+            prevSchema = mReorderItem(
+              prevSchema,
+              destinationData as any,
+              newItem as any
+            )
 
             return prevSchema
           })
@@ -105,7 +116,7 @@ function App() {
     })
   }, [jsonSchema, reorderItem])
 
-  console.log(jsonSchema)
+  console.log("jsonSchema", jsonSchema)
 
   return (
     <>
@@ -117,6 +128,8 @@ function App() {
         <div className="flex flex-col h-full bg-gray-100 w-[200px] gap-[10px]">
           {components &&
             components.map((component) => {
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const { component: Component, ...rest } = component
               return (
                 <Draggable
                   key={component.id}
@@ -124,7 +137,7 @@ function App() {
                   data={{
                     color: "bg-red-500",
                     isSource: true,
-                    ...component,
+                    ...rest,
                   }}
                 >
                   <div className="size-[100px] bg-blue-500 flex items-center justify-center text-white font-bold uppercase">

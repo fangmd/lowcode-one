@@ -8,16 +8,21 @@ export const ComponentType = [
   {
     id: genUUID(),
     type: "Column",
+    isGroup: true,
     component: Column,
+    children: [],
   },
   {
     id: genUUID(),
     type: "Row",
+    isGroup: true,
     component: Row,
+    children: [],
   },
   {
     id: genUUID(),
     type: "Box",
+    isGroup: false,
     component: Box,
   },
 ]
