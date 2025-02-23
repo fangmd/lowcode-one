@@ -10,6 +10,7 @@ import {
 import { getReorderDestinationIndex } from "@atlaskit/pragmatic-drag-and-drop-hitbox/util/get-reorder-destination-index"
 import { reorder } from "@atlaskit/pragmatic-drag-and-drop/reorder"
 import { useComponents } from "./hooks/useComponents"
+import { EditComp } from "./preview/EditItem"
 
 function App() {
   const [jsonSchema, setJsonSchema] = useState<JSONSchema[]>([
@@ -158,12 +159,14 @@ function App() {
 
               if (!Component) return null
 
-              return <Component key={item.id} data={item} />
+              return <EditComp key={item.id} type={item.type} data={item} />
             })}
         </div>
 
         {/* 属性区 */}
-        <div className="flex flex-col h-full bg-gray-100 w-[200px]"></div>
+        <div className="flex flex-col h-full bg-gray-100 w-[200px]">
+          <div>{JSON.stringify(jsonSchema)}</div>
+        </div>
       </div>
     </>
   )

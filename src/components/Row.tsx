@@ -1,5 +1,4 @@
 import clsx from "clsx"
-import { Edit } from "./common/Edit"
 import { ComponentType } from "../hooks/useComponents"
 
 interface RowProps {
@@ -12,22 +11,20 @@ export const Row = ({ className, ...props }: RowProps) => {
   const { children } = props.data
 
   return (
-    <Edit data={props.data} className="w-full">
-      <div
-        className={clsx("flex flex-row min-w-3 min-h-3 border", className)}
-        {...props}
-      >
-        {children &&
-          children.map((item) => {
-            const Component = ComponentType.find(
-              (c) => c.type === item.type
-            )?.component
+    <div
+      className={clsx("flex flex-row min-w-3 min-h-3 border", className)}
+      {...props}
+    >
+      {children &&
+        children.map((item) => {
+          const Component = ComponentType.find(
+            (c) => c.type === item.type
+          )?.component
 
-            if (!Component) return null
+          if (!Component) return null
 
-            return <Component key={item.id} data={item} />
-          })}
-      </div>
-    </Edit>
+          return <Component key={item.id} data={item} />
+        })}
+    </div>
   )
 }
