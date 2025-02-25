@@ -8,13 +8,14 @@
 
 - dnd，组件拖拽功能
 - JSON Schema 和 组件之间的转换
+- JSON Schema 编辑器 & JSON Schema 预览
+- JS沙箱
+- 加载远程组件（加载url组件资源）
 
 
 
 
 
-- 预览组件&编辑组件
-- 加载url组件资源
 - 拖拽到 iframe 中
 - Row 类型组件，子组件拖拽排序
 

@@ -25,6 +25,12 @@ export const ComponentType = [
     isGroup: false,
     component: Box,
   },
+  {
+    id: genUUID(),
+    type: "Button",
+    isGroup: false,
+    component: "http://localhost:8080/dist/index.js",
+  },
 ]
 
 export const useComponents = () => {

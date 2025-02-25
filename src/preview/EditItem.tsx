@@ -10,11 +10,17 @@ interface EditCompProps {
 export const EditComp = ({ data, type }: EditCompProps) => {
   const Component = ComponentType.find((c) => c.type === type)?.component
 
+  console.log("Component", Component)
+
   if (!Component) return null
 
   return (
     <Edit data={data} className={clsx(data.isGroup && "w-full")}>
-      <Component key={data.id} data={data} />
+      {data.isGroup && <Component key={data.id} data={data} />}
+
+      {!data.isGroup && (
+        <Component key={data.id} data={data} />
+      )}
     </Edit>
   )
 }
