@@ -8,7 +8,6 @@ import {
   extractInstruction,
 } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item"
 import { treeAction, treeInsert, TreeItem } from "./tree"
-import { list } from "./list"
 
 const loopFind = (schema: JSONSchema[], id: string) => {
   for (let i = 0; i < schema.length; i++) {
@@ -93,10 +92,7 @@ export const mReorderItem = (
   source: JSONSchema
 ) => {
   const targetItem = loopFind(schema, target.id)
-  const targetParentItem = loopFindParent(schema, target.id)
-  const sourceParentItem = loopFindParent(schema, source.id)
   if (!targetItem) return schema
-  if (!sourceParentItem) return []
 
   const instruction = extractInstruction(target as any)
   console.log("instruction", instruction)
@@ -107,6 +103,8 @@ export const mReorderItem = (
     itemId: source.id,
     targetId: target.id,
   })
+
+  console.log("ret", ret)
 
   return ret
 }

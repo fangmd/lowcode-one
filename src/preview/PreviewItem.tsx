@@ -10,6 +10,6 @@ export const PreviewItem = ({ data, type }: PreviewItemProps) => {
 
   if (!Component) return null
 
-  return <Component key={data.id} data={data} />
-}
 
+  return <Component key={data.id} data={data} mode="preview" />
+}

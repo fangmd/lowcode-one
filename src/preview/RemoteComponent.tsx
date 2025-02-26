@@ -26,13 +26,26 @@ export const loadRemoteComponent = (url) => {
 
 // Component to load remote components from URL
 export const RemoteComponent = ({ url, data }: { url: string; data: any }) => {
-  const Component = React.lazy(() => {
-    return loadRemoteComponent(url).then((component: any) => {
-      return {
-        default: component.Button,
-      }
+  const [Component, setComponent] = useState(() =>
+    React.lazy(() => {
+      return loadRemoteComponent(url).then((component: any) => {
+        return {
+          default: component.Button,
+        }
+      })
     })
-  })
+  )
+
+  useEffect(() => {
+    const lazyComponent = React.lazy(() => {
+      return loadRemoteComponent(url).then((component: any) => {
+        return {
+          default: component.Button,
+        }
+      })
+    })
+    setComponent(lazyComponent)
+  }, [url])
 
   return (
     <React.Suspense fallback={<div>Loading component...</div>}>
